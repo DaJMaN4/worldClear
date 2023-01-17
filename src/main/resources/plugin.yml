@@ -1,0 +1,6 @@
+name: WorldClear
+version: '${project.version}'
+main: me.worldclear.Main
+api-version: 1.18
+commands:
+  otchlan:
