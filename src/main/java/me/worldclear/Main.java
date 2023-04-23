@@ -1,22 +1,22 @@
 package me.worldclear;
 
+import me.worldclear.Commands.VoidCommand;
+import me.worldclear.listeners.ItemFallsToVoid;
+import me.worldclear.listeners.MoveToInv;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.ItemDespawnEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,21 +28,25 @@ public final class Main extends JavaPlugin implements Listener {
     public List<Inventory> invs = new ArrayList<Inventory>();
     public Map<Player, Integer> invnumber = new HashMap<Player, Integer>();
     public boolean went;
-    public boolean on = this.getConfig().getBoolean("on");
-    public String broadcast = ChatColor.translateAlternateColorCodes('&',
-            this.getConfig().getString("messages.messege on clearing world to players"));
-    public String clearmsg = ChatColor.translateAlternateColorCodes('&',
-            this.getConfig().getString("messages.on empty inv"));
-    public Integer time = this.getConfig().getInt("reminder before kick");
+
+    public String name = ChatColor.translateAlternateColorCodes('&',
+            getConfig().getString("messages.name"));
+    public String previous = ChatColor.translateAlternateColorCodes('&',
+            getConfig().getString("texts.previous"));
+    public String next = ChatColor.translateAlternateColorCodes('&',
+            getConfig().getString("texts.next"));
 
 
     @Override
     public void onEnable() {
         // Plugin startup logic
         this.saveDefaultConfig();
-        this.getServer().getPluginManager().registerEvents(this, this);
-        run();
-        on = false;
+        if (getConfig().getBoolean("void inv.voidfall"))
+            this.getServer().getPluginManager().registerEvents(new ItemFallsToVoid(), this);
+        if (getConfig().getBoolean("void inv.putIn"))
+            this.getServer().getPluginManager().registerEvents(new MoveToInv(this), this);
+        getCommand("void").setExecutor(new VoidCommand(this));
+
     }
 
 
@@ -52,69 +56,56 @@ public final class Main extends JavaPlugin implements Listener {
     }
 
 
-    @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (label.equalsIgnoreCase("otchlan")) {
-            if (!(sender instanceof Player)) {
-                System.out.println("Command not compatible with console");
-                return true;
-            }
-            Player player = (Player) sender;
-
-            if (!invs.isEmpty() && args.length == 0) {
-                player.openInventory(invs.get(0));
-                invnumber.put(player, 0);
-            } else {
-                if (args.length == 1) {
-                    if (player.isOp()) {
-                        if (player.isOp() && args[0].equals("on"))
-                            on = true;
-                        else if (player.isOp() && args[0].equals("off"))
-                            on = false;
-                    }
-                }
-                else
-                    getServer().broadcastMessage(clearmsg);
+    public void addItem(Entity item) {
+        Item it = (Item) item;
+        for (int i = 0; i != invs.size(); i++) {
+            if (!isfull(invs.get(i))) {
+                invs.get(i).addItem(it.getItemStack());
+                return;
             }
         }
-        return false;
-    }
-
-
-    public void addItem(Entity item) {
         if (invs.isEmpty() || isfull(invs.get(invs.size() - 1))) {
             createInv();
         }
-        Item it = (Item) item;
-        it.getItemStack();
         invs.get(invs.size() - 1).addItem(it.getItemStack());
     }
 
 
     public boolean isfull(Inventory inv) {
-        int size = 0;
         for (int i = 45; i != 0; i--) {
-             if (inv.getItem(i) == null)
-                 return false;
+            if (inv.getItem(i) == null)
+                return false;
         }
         return true;
     }
 
 
     public void createInv() {
-        Inventory inv = Bukkit.createInventory(null, 54, ChatColor.DARK_PURPLE + "Otchłan strona" + (invs.size() - 1));
+        Inventory inv = Bukkit.createInventory(null, 54,
+                ChatColor.DARK_PURPLE + name + (invs.size() + 1) + "/" + invs.size());
 
         ItemStack item = new ItemStack(Material.PAPER);
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(ChatColor.GOLD + "Poprzednia strona");
+        meta.setDisplayName(ChatColor.GOLD + previous);
         item.setItemMeta(meta);
         inv.setItem(45, item);
 
-        meta.setDisplayName(ChatColor.GOLD + "Następna strona");
+        meta.setDisplayName(ChatColor.GOLD + next);
         item.setItemMeta(meta);
         inv.setItem(53, item);
 
+        item = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
+        meta = item.getItemMeta();
+        meta.setDisplayName(" ");
+        inv.setItem(52, item);
+        inv.setItem(51, item);
+        inv.setItem(50, item);
+        inv.setItem(49, item);
+        inv.setItem(48, item);
+        inv.setItem(47, item);
+        inv.setItem(46, item);
         invs.add(inv);
+
     }
 
 
@@ -138,28 +129,23 @@ public final class Main extends JavaPlugin implements Listener {
     }
 
 
-    public void run() {
-        new BukkitRunnable() {
-            public void run() {
-                if (on) {
-                    clear();
-                }
-            }
-        }.runTaskTimer(this, 0, time * 20);
+    @EventHandler
+    public void dis(ItemDespawnEvent event) {
+        addItem(event.getEntity());
     }
 
+
     public void clear() {
-        invs.clear();
+        went = false;
         getServer().getWorlds().forEach(world -> {
             world.getEntities().forEach(item -> {
                 if (item instanceof Item) {
                     addItem(item);
                     item.remove();
-
+                    went = true;
                 }
             });
         });
-        getServer().broadcastMessage(broadcast);
     }
 }
 

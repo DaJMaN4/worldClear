@@ -1,11 +1,25 @@
-messages:
-  on clearing world to players:
-    "&7You dont have permission to use this plugin"
-  on empty inv:
-    "Otchłan jest pusta"
+texts:
+  name: "Void                side " # name of the GUIs
+  previous: "previous side" # name of the item that moves player to previous side
+  next: "next side" # name of the item that moves player to next side
 
-time between clears: # in seconds
-  20
+void inv:
+  separete: true # will all worlds have separate void inventory?
+  exception: false # Works only if separate is true. Allows combining inv Guis with chosen worlds
+  putIn: true # if players can move items inside the GUIs
+  voidfall: treu # if item that falls to void will be moved to gui
 
-on: #if automatic clearing will be enabled on start
-  false
+  combine:
+    1:
+      command: parapa # command to open the GUI
+      worlds: # list of worlds with the same GUI
+        - nether
+        - overworld
+    2:
+      command: parap
+      worlds:
+        - spawn
+        - overworld
+
+
+
