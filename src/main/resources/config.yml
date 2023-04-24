@@ -7,16 +7,18 @@ void inv:
   separete: true # will all worlds have separate void inventory?
   exception: false # Works only if separate is true. Allows combining inv Guis with chosen worlds
   putIn: true # if players can move items inside the GUIs
-  voidfall: treu # if item that falls to void will be moved to gui
+  voidfall: true # if item that falls to void will be moved to gui
 
   combine:
     1:
       command: parapa # command to open the GUI
+      works: false # if the command will work in every world
       worlds: # list of worlds with the same GUI
         - nether
         - overworld
     2:
       command: parap
+      works: true
       worlds:
         - spawn
         - overworld

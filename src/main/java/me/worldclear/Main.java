@@ -26,6 +26,8 @@ import java.util.Map;
 public final class Main extends JavaPlugin implements Listener {
 
     public List<Inventory> invs = new ArrayList<Inventory>();
+    public List<Integer> nums = getConfig().getIntegerList("void inv.combine");
+    public List<List<String>> worlds = new ArrayList<List<String>>();
     public Map<Player, Integer> invnumber = new HashMap<Player, Integer>();
     public boolean went;
 
@@ -56,18 +58,67 @@ public final class Main extends JavaPlugin implements Listener {
     }
 
 
-    public void addItem(Entity item) {
+    public void reloadConfig() {
+        String name = ChatColor.translateAlternateColorCodes('&',
+                getConfig().getString("messages.name"));
+        String previous = ChatColor.translateAlternateColorCodes('&',
+                getConfig().getString("texts.previous"));
+        String next = ChatColor.translateAlternateColorCodes('&',
+                getConfig().getString("texts.next"));
+
+        List<Integer> nums = getConfig().getIntegerList("void inv.combine");
+
+
+        worlds = worldsConf();
+    }
+
+
+    public List<List<String>> worldsConf() {
+        List<List<String>> listOfLists = new ArrayList<List<String>>();
+        List<String> worldsAppeard = new ArrayList<String>();
+        List<String> commands = new ArrayList<String>();
+        for (int x : nums) {
+            List<String> list = new ArrayList<String>();
+            list.add(getConfig().getString("void inv.combine" + x + "command"));
+            list.add(getConfig().getString("void inv.combine" + x + "works"));
+            if (list.get(1) == "true")
+                commands.add(list.get(0));
+
+            for (String y : getConfig().getStringList(x + "worlds")) {
+                if (worldsAppeard.contains(y)) {
+                    //make exception
+                    return null;
+                }
+                    list.add(getConfig().getString("void inv.combine" + x + y));
+                    worldsAppeard.add(y);
+            }
+            listOfLists.add(list);
+        }
+        for (String x : commands) {
+            for (String y : commands) {
+                if (x == y) {
+                    //Raise exception
+                    return null;
+                }
+            }
+        }
+        return listOfLists;
+    }
+
+
+
+    public void addItem(Entity item, List<Inventory> inven) {
         Item it = (Item) item;
-        for (int i = 0; i != invs.size(); i++) {
-            if (!isfull(invs.get(i))) {
-                invs.get(i).addItem(it.getItemStack());
+        for (int i = 0; i != inven.size(); i++) {
+            if (!isfull(inven.get(i))) {
+                inven.get(i).addItem(it.getItemStack());
                 return;
             }
         }
-        if (invs.isEmpty() || isfull(invs.get(invs.size() - 1))) {
-            createInv();
+        if (inven.isEmpty() || isfull(inven.get(inven.size() - 1))) {
+            inven.add(createInv());
         }
-        invs.get(invs.size() - 1).addItem(it.getItemStack());
+        inven.get(inven.size() - 1).addItem(it.getItemStack());
     }
 
 
@@ -80,7 +131,16 @@ public final class Main extends JavaPlugin implements Listener {
     }
 
 
-    public void createInv() {
+    public void invlist() {
+        for (List<String> x : worlds) {
+            for (String y : x) {
+
+            }
+        }
+    }
+
+
+    public Inventory createInv() {
         Inventory inv = Bukkit.createInventory(null, 54,
                 ChatColor.DARK_PURPLE + name + (invs.size() + 1) + "/" + invs.size());
 
@@ -104,8 +164,7 @@ public final class Main extends JavaPlugin implements Listener {
         inv.setItem(48, item);
         inv.setItem(47, item);
         inv.setItem(46, item);
-        invs.add(inv);
-
+        return inv;
     }
 
 
@@ -131,7 +190,7 @@ public final class Main extends JavaPlugin implements Listener {
 
     @EventHandler
     public void dis(ItemDespawnEvent event) {
-        addItem(event.getEntity());
+        //addItem(event.getEntity());
     }
 
 
@@ -140,7 +199,7 @@ public final class Main extends JavaPlugin implements Listener {
         getServer().getWorlds().forEach(world -> {
             world.getEntities().forEach(item -> {
                 if (item instanceof Item) {
-                    addItem(item);
+                    //addItem(item);
                     item.remove();
                     went = true;
                 }
