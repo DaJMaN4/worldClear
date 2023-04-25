@@ -28,8 +28,10 @@ public final class Main extends JavaPlugin implements Listener {
     public List<Inventory> invs = new ArrayList<Inventory>();
     public List<Integer> nums = getConfig().getIntegerList("void inv.combine");
     public List<List<String>> worlds = new ArrayList<List<String>>();
-    public Map<Player, Integer> invnumber = new HashMap<Player, Integer>();
+    public Map<Player, List<Integer>> invnumber = new HashMap<Player, List<Integer>>();
+    public Map<Integer, List<Inventory>> worldsInvs = new HashMap<Integer, List<Inventory>>();
     public boolean went;
+    private List<Integer> num = new ArrayList<Integer>();
 
     public String name = ChatColor.translateAlternateColorCodes('&',
             getConfig().getString("messages.name"));
@@ -49,6 +51,7 @@ public final class Main extends JavaPlugin implements Listener {
             this.getServer().getPluginManager().registerEvents(new MoveToInv(this), this);
         getCommand("void").setExecutor(new VoidCommand(this));
 
+        reloadConfig();
     }
 
 
@@ -65,11 +68,9 @@ public final class Main extends JavaPlugin implements Listener {
                 getConfig().getString("texts.previous"));
         String next = ChatColor.translateAlternateColorCodes('&',
                 getConfig().getString("texts.next"));
-
         List<Integer> nums = getConfig().getIntegerList("void inv.combine");
-
-
         worlds = worldsConf();
+        invlist();
     }
 
 
@@ -81,7 +82,7 @@ public final class Main extends JavaPlugin implements Listener {
             List<String> list = new ArrayList<String>();
             list.add(getConfig().getString("void inv.combine" + x + "command"));
             list.add(getConfig().getString("void inv.combine" + x + "works"));
-            if (list.get(1) == "true")
+            if (list.get(1).equals("true"))
                 commands.add(list.get(0));
 
             for (String y : getConfig().getStringList(x + "worlds")) {
@@ -96,7 +97,7 @@ public final class Main extends JavaPlugin implements Listener {
         }
         for (String x : commands) {
             for (String y : commands) {
-                if (x == y) {
+                if (x.equals(y)) {
                     //Raise exception
                     return null;
                 }
@@ -105,6 +106,13 @@ public final class Main extends JavaPlugin implements Listener {
         return listOfLists;
     }
 
+
+    public void invlist() { // might not be needed
+        for (int i = 0 ; i != worlds.size() ; i++) {
+            worldsInvs.put(i, new ArrayList<Inventory>());
+            worldsInvs.get(i).add(createInv(worldsInvs.get(i)));
+        }
+    }
 
 
     public void addItem(Entity item, List<Inventory> inven) {
@@ -131,18 +139,9 @@ public final class Main extends JavaPlugin implements Listener {
     }
 
 
-    public void invlist() {
-        for (List<String> x : worlds) {
-            for (String y : x) {
-
-            }
-        }
-    }
-
-
-    public Inventory createInv() {
+    public Inventory createInv(List<Inventory> invent) {
         Inventory inv = Bukkit.createInventory(null, 54,
-                ChatColor.DARK_PURPLE + name + (invs.size() + 1) + "/" + invs.size());
+                ChatColor.DARK_PURPLE + name + (invent.size() + 1) + "/" + invent.size());
 
         ItemStack item = new ItemStack(Material.PAPER);
         ItemMeta meta = item.getItemMeta();
@@ -170,21 +169,28 @@ public final class Main extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onClick(InventoryClickEvent event) {
-        if (invs.contains(event.getInventory()))
-            if (event.getSlot() > 44) {
-                event.setCancelled(true);
-                Player player = (Player) event.getWhoClicked();
-                if (event.getSlot() == 45 && invnumber.get(player) - 1 != -1) {
-                    invnumber.put(player, invnumber.get(player) - 1);
-                    event.getWhoClicked().closeInventory();
-                    event.getWhoClicked().openInventory(invs.get(invnumber.get(player)));
+        for (int i = 0 ; i != worldsInvs.size() ; i++) {
+            if (worldsInvs.get(i).contains(event.getInventory())) {
+                if (event.getSlot() > 44) {
+                    event.setCancelled(true);
+                    Player player = (Player) event.getWhoClicked();
+                    if (event.getSlot() == 45 && invnumber.get(player).get(1) - 1 != -1) {
+                        num.add(i);
+                        num.add(invnumber.get(player).get(1) - 1);
+                        invnumber.put(player, num);
+                        event.getWhoClicked().closeInventory();
+                        event.getWhoClicked().openInventory(invs.get(invnumber.get(player).get(1)));
 
-                } else if (event.getSlot() == 53 && invnumber.get(player) + 1 <= invs.size() - 1) {
-                    invnumber.put(player, invnumber.get(player) + 1);
-                    event.getWhoClicked().closeInventory();
-                    event.getWhoClicked().openInventory(invs.get(invnumber.get(player)));
+                    } else if (event.getSlot() == 53 && invnumber.get(player).get(1) + 1 <= invs.size() - 1) {
+                        num.add(i);
+                        num.add(invnumber.get(player).get(1) + 1);
+                        invnumber.put(player, num);
+                        event.getWhoClicked().closeInventory();
+                        event.getWhoClicked().openInventory(worldsInvs.get(i). .get(invnumber.get(player).get(1)));
+                    }
                 }
             }
+        }
     }
 
 

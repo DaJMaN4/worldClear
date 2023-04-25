@@ -23,11 +23,8 @@ public class VoidCommand implements CommandExecutor{
             }
             Player player = (Player) sender;
 
-            if (!main.invs.isEmpty() && args.length == 0) {
-                player.openInventory(main.invs.get(0));
-                main.invnumber.put(player, 0);
-            } else if (args.length == 0)
-                player.sendMessage(main.clearmsg);
+            player.openInventory(main.invs.get(0));
+            main.invnumber.put(player, 0);
 
             if (args.length != 0) {
                 if (player.isOp()) {
