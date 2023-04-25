@@ -1,4 +1,5 @@
 command name: void
+permission: tralalal
 disable item disappearing: false
 
 texts:
@@ -15,12 +16,14 @@ void inv:
   combine:
     1:
       command: parapa # command to open the GUI
+      permission: worldClear.blabla # 0 means disabled, everyone can execute it
       works: false # if the command will work in every world
       worlds: # list of worlds with the same GUI
         - nether
         - overworld
     2:
       command: parap
+      permission: worldclear.blbalb
       works: true
       worlds:
         - spawn
