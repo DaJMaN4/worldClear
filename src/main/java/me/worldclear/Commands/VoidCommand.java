@@ -22,9 +22,14 @@ public class VoidCommand implements CommandExecutor{
                 return true;
             }
             Player player = (Player) sender;
-
-            player.openInventory(main.invs.get(0));
-            main.invnumber.put(player, 0);
+            for (int i = 0 ; i != main.worlds.size() ; i++) {
+                if (main.worlds.get(i).contains(player.getWorld().getName())) {
+                    if (i > 1) {
+                        player.openInventory(main.worldsInvs.get(i).get(0));
+                        main.invnumber.put(player, 0);
+                    }
+                }
+            }
 
             if (args.length != 0) {
                 if (player.isOp()) {

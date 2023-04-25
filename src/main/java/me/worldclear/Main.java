@@ -28,30 +28,28 @@ public final class Main extends JavaPlugin implements Listener {
     public List<Inventory> invs = new ArrayList<Inventory>();
     public List<Integer> nums = getConfig().getIntegerList("void inv.combine");
     public List<List<String>> worlds = new ArrayList<List<String>>();
-    public Map<Player, List<Integer>> invnumber = new HashMap<Player, List<Integer>>();
+    public Map<Player, Integer> invnumber = new HashMap<Player, Integer>();
     public Map<Integer, List<Inventory>> worldsInvs = new HashMap<Integer, List<Inventory>>();
     public boolean went;
-    private List<Integer> num = new ArrayList<Integer>();
-
-    public String name = ChatColor.translateAlternateColorCodes('&',
-            getConfig().getString("messages.name"));
-    public String previous = ChatColor.translateAlternateColorCodes('&',
-            getConfig().getString("texts.previous"));
-    public String next = ChatColor.translateAlternateColorCodes('&',
-            getConfig().getString("texts.next"));
-
+    public boolean oneInv;
+    public boolean disableDisappearing;
+    public boolean voidFall;
+    public boolean putIn;
+    public String name;
+    public String previous;
+    public String next;
 
     @Override
     public void onEnable() {
         // Plugin startup logic
         this.saveDefaultConfig();
-        if (getConfig().getBoolean("void inv.voidfall"))
-            this.getServer().getPluginManager().registerEvents(new ItemFallsToVoid(), this);
-        if (getConfig().getBoolean("void inv.putIn"))
+        reloadConfig();
+        if (voidFall)
+            this.getServer().getPluginManager().registerEvents(new ItemFallsToVoid(this), this);
+        if (putIn)
             this.getServer().getPluginManager().registerEvents(new MoveToInv(this), this);
         getCommand("void").setExecutor(new VoidCommand(this));
-
-        reloadConfig();
+        getCommand("disablevoid").setExecutor(new VoidCommand(this));
     }
 
 
@@ -68,7 +66,15 @@ public final class Main extends JavaPlugin implements Listener {
                 getConfig().getString("texts.previous"));
         String next = ChatColor.translateAlternateColorCodes('&',
                 getConfig().getString("texts.next"));
+        oneInv = getConfig().getBoolean("void inv.oneInv");
+        voidFall = getConfig().getBoolean("void inv.voidfall");
+        putIn = getConfig().getBoolean("void inv.putIn");
+        disableDisappearing = getConfig().getBoolean("disable item disappearing");
         List<Integer> nums = getConfig().getIntegerList("void inv.combine");
+        if (oneInv) {
+            invs.add(createInv(invs));
+            return;
+        }
         worlds = worldsConf();
         invlist();
     }
@@ -107,7 +113,7 @@ public final class Main extends JavaPlugin implements Listener {
     }
 
 
-    public void invlist() { // might not be needed
+    public void invlist() {
         for (int i = 0 ; i != worlds.size() ; i++) {
             worldsInvs.put(i, new ArrayList<Inventory>());
             worldsInvs.get(i).add(createInv(worldsInvs.get(i)));
@@ -124,7 +130,7 @@ public final class Main extends JavaPlugin implements Listener {
             }
         }
         if (inven.isEmpty() || isfull(inven.get(inven.size() - 1))) {
-            inven.add(createInv());
+            inven.add(createInv(inven));
         }
         inven.get(inven.size() - 1).addItem(it.getItemStack());
     }
@@ -141,7 +147,7 @@ public final class Main extends JavaPlugin implements Listener {
 
     public Inventory createInv(List<Inventory> invent) {
         Inventory inv = Bukkit.createInventory(null, 54,
-                ChatColor.DARK_PURPLE + name + (invent.size() + 1) + "/" + invent.size());
+                ChatColor.DARK_PURPLE + name + (invent.size() + 1) + "/" + invent.size() + 1);
 
         ItemStack item = new ItemStack(Material.PAPER);
         ItemMeta meta = item.getItemMeta();
@@ -174,19 +180,15 @@ public final class Main extends JavaPlugin implements Listener {
                 if (event.getSlot() > 44) {
                     event.setCancelled(true);
                     Player player = (Player) event.getWhoClicked();
-                    if (event.getSlot() == 45 && invnumber.get(player).get(1) - 1 != -1) {
-                        num.add(i);
-                        num.add(invnumber.get(player).get(1) - 1);
-                        invnumber.put(player, num);
+                    if (event.getSlot() == 45 && invnumber.get(player) - 1 != -1) {
+                        invnumber.put(player, invnumber.get(player) - 1);
                         event.getWhoClicked().closeInventory();
-                        event.getWhoClicked().openInventory(invs.get(invnumber.get(player).get(1)));
+                        event.getWhoClicked().openInventory(worldsInvs.get(i).get(invnumber.get(player)));
 
-                    } else if (event.getSlot() == 53 && invnumber.get(player).get(1) + 1 <= invs.size() - 1) {
-                        num.add(i);
-                        num.add(invnumber.get(player).get(1) + 1);
-                        invnumber.put(player, num);
+                    } else if (event.getSlot() == 53 && invnumber.get(player) + 1 <= invs.size() - 1) {
+                        invnumber.put(player, invnumber.get(player) + 1);
                         event.getWhoClicked().closeInventory();
-                        event.getWhoClicked().openInventory(worldsInvs.get(i). .get(invnumber.get(player).get(1)));
+                        event.getWhoClicked().openInventory(worldsInvs.get(i).get(invnumber.get(player)));
                     }
                 }
             }
@@ -196,7 +198,21 @@ public final class Main extends JavaPlugin implements Listener {
 
     @EventHandler
     public void dis(ItemDespawnEvent event) {
-        //addItem(event.getEntity());
+        if (disableDisappearing) {
+            event.setCancelled(true);
+            return;
+        }
+        if (oneInv) {
+            addItem(event.getEntity(), invs);
+            return;
+        }
+        for (List<String> x : worlds) {
+            for (String y : x) {
+                if (event.getLocation().getWorld().getName().equals(y)) {
+                    addItem(event.getEntity(), worldsInvs.get(x.indexOf(y)) );
+                }
+            }
+        }
     }
 
 
@@ -205,7 +221,13 @@ public final class Main extends JavaPlugin implements Listener {
         getServer().getWorlds().forEach(world -> {
             world.getEntities().forEach(item -> {
                 if (item instanceof Item) {
-                    //addItem(item);
+                    for (List<String> x : worlds) {
+                        for (String y : x) {
+                            if (world.getName().equals(y)) {
+                                addItem(item, worldsInvs.get(x.indexOf(y)) );
+                            }
+                        }
+                    }
                     item.remove();
                     went = true;
                 }
