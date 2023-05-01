@@ -16,6 +16,25 @@ public class InventoryClick implements Listener {
 
     @EventHandler
     public void click(InventoryClickEvent event) {
+        if (main.oneInv) {
+            if (main.invs.contains(event.getInventory())){
+                if (event.getSlot() > 44) {
+                    event.setCancelled(true);
+                    Player player = (Player) event.getWhoClicked();
+                    if (event.getSlot() == 45 && main.invnumber.get(player) - 1 != -1) {
+                        main.invnumber.put(player, main.invnumber.get(player) - 1);
+                        event.getWhoClicked().closeInventory();
+                        event.getWhoClicked().openInventory(main.invs.get(main.invnumber.get(player)));
+
+                    } else if (event.getSlot() == 53 && main.invnumber.get(player) + 1 <= main.invs.size() - 1) {
+                        main.invnumber.put(player, main.invnumber.get(player) + 1);
+                        event.getWhoClicked().closeInventory();
+                        event.getWhoClicked().openInventory(main.invs.get(main.invnumber.get(player)));
+                    }
+                }
+            }
+            return;
+        }
         for (int i = 0 ; i != main.worldsInvs.size() ; i++) {
             if (main.worldsInvs.get(i).contains(event.getInventory())) {
                 if (event.getSlot() > 44) {
