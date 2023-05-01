@@ -1,6 +1,7 @@
 package me.worldclear;
 
 import me.worldclear.Commands.VoidCommand;
+import me.worldclear.listeners.InventoryClick;
 import me.worldclear.listeners.ItemFallsToVoid;
 import me.worldclear.listeners.MoveToInv;
 import org.bukkit.Bukkit;
@@ -54,6 +55,12 @@ public final class Main extends JavaPlugin implements Listener {
             this.getServer().getPluginManager().registerEvents(new ItemFallsToVoid(this), this);
         if (putIn)
             this.getServer().getPluginManager().registerEvents(new MoveToInv(this), this);
+
+        getServer().getPluginManager().registerEvents(this, this);
+
+        getServer().getPluginManager().registerEvents(new InventoryClick(this), this);
+
+
         getCommand("void").setExecutor(new VoidCommand(this));
         getCommand("disablevoid").setExecutor(new VoidCommand(this));
         Bukkit.broadcastMessage(getConfig().getString("texts.next"));
