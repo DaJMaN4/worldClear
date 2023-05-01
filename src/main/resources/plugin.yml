@@ -1,6 +1,7 @@
 name: WorldClear
-version: '${project.version}'
+version: 'Beta 1'
 main: me.worldclear.Main
 api-version: 1.18
 commands:
-  otchlan:
+  void:
+  disablevoid:

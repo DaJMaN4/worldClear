@@ -1,13 +1,13 @@
 command name: void
 permission: tralalal
-disable item disappearing: false
+disableitemdisappearing: false
 
 texts:
   name: "Void                side " # name of the GUIs
   previous: "previous side" # name of the item that moves player to previous side
   next: "next side" # name of the item that moves player to next side
 
-void inv:
+voidinv:
   oneInv: true # will all worlds have separate void inventory?
   exception: false # Works only if separate is true. Allows combining inv Guis with chosen worlds
   putIn: true # if players can move items inside the GUIs

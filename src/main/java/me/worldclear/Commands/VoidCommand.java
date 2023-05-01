@@ -22,6 +22,14 @@ public class VoidCommand implements CommandExecutor{
                 return true;
             }
             Player player = (Player) sender;
+            if (main.oneInv) {
+                player.openInventory(main.invs.get(0));
+                main.invnumber.put(player, 0);
+                player.sendMessage("works somehow");
+                return true;
+            }
+
+
             for (int i = 0 ; i != main.worlds.size() ; i++) {
                 if (main.worlds.get(i).contains(player.getWorld().getName())) {
                     if (i > 1) {
@@ -30,6 +38,7 @@ public class VoidCommand implements CommandExecutor{
                     }
                 }
             }
+
 
             if (args.length != 0) {
                 if (player.isOp()) {

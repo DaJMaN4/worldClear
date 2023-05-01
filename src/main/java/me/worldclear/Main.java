@@ -26,7 +26,7 @@ import java.util.Map;
 public final class Main extends JavaPlugin implements Listener {
 
     public List<Inventory> invs = new ArrayList<Inventory>();
-    public List<Integer> nums = getConfig().getIntegerList("void inv.combine");
+    public List<Integer> nums; // test this
     public List<List<String>> worlds = new ArrayList<List<String>>();
     public Map<Player, Integer> invnumber = new HashMap<Player, Integer>();
     public Map<Integer, List<Inventory>> worldsInvs = new HashMap<Integer, List<Inventory>>();
@@ -38,18 +38,20 @@ public final class Main extends JavaPlugin implements Listener {
     public String name;
     public String previous;
     public String next;
+    private static Main plugin;
 
     @Override
     public void onEnable() {
         // Plugin startup logic
-        this.saveDefaultConfig();
-        reloadConfig();
+        plugin = this;
+        saveDefaultConfig();
         if (voidFall)
             this.getServer().getPluginManager().registerEvents(new ItemFallsToVoid(this), this);
         if (putIn)
             this.getServer().getPluginManager().registerEvents(new MoveToInv(this), this);
         getCommand("void").setExecutor(new VoidCommand(this));
         getCommand("disablevoid").setExecutor(new VoidCommand(this));
+        Bukkit.broadcastMessage(getConfig().getString("texts.next"));
     }
 
 
@@ -60,17 +62,17 @@ public final class Main extends JavaPlugin implements Listener {
 
 
     public void reloadConfig() {
-        String name = ChatColor.translateAlternateColorCodes('&',
-                getConfig().getString("messages.name"));
-        String previous = ChatColor.translateAlternateColorCodes('&',
-                getConfig().getString("texts.previous"));
-        String next = ChatColor.translateAlternateColorCodes('&',
+        List<Integer> numss = plugin.getConfig().getIntegerList("voidinv.combine");
+        name = ChatColor.translateAlternateColorCodes('&',
+                getConfig().getString("texts.name"));
+        next = ChatColor.translateAlternateColorCodes('&',
                 getConfig().getString("texts.next"));
-        oneInv = getConfig().getBoolean("void inv.oneInv");
-        voidFall = getConfig().getBoolean("void inv.voidfall");
-        putIn = getConfig().getBoolean("void inv.putIn");
-        disableDisappearing = getConfig().getBoolean("disable item disappearing");
-        List<Integer> nums = getConfig().getIntegerList("void inv.combine");
+        previous = ChatColor.translateAlternateColorCodes('&',
+                getConfig().getString("texts.previous"));
+        oneInv = getConfig().getBoolean("voidinv.oneInv");
+        voidFall = getConfig().getBoolean("voidinv.voidfall");
+        putIn = getConfig().getBoolean("voidinv.putIn");
+        disableDisappearing = getConfig().getBoolean("disableitemdisappearing");
         if (oneInv) {
             invs.add(createInv(invs));
             return;
@@ -86,8 +88,8 @@ public final class Main extends JavaPlugin implements Listener {
         List<String> commands = new ArrayList<String>();
         for (int x : nums) {
             List<String> list = new ArrayList<String>();
-            list.add(getConfig().getString("void inv.combine" + x + "command"));
-            list.add(getConfig().getString("void inv.combine" + x + "works"));
+            list.add(getConfig().getString("voidinv.combine" + x + "command"));
+            list.add(getConfig().getString("voidinv.combine" + x + "works"));
             if (list.get(1).equals("true"))
                 commands.add(list.get(0));
 
@@ -96,7 +98,7 @@ public final class Main extends JavaPlugin implements Listener {
                     //make exception
                     return null;
                 }
-                    list.add(getConfig().getString("void inv.combine" + x + y));
+                    list.add(getConfig().getString("voidinv.combine" + x + y));
                     worldsAppeard.add(y);
             }
             listOfLists.add(list);
@@ -170,29 +172,6 @@ public final class Main extends JavaPlugin implements Listener {
         inv.setItem(47, item);
         inv.setItem(46, item);
         return inv;
-    }
-
-
-    @EventHandler
-    public void onClick(InventoryClickEvent event) {
-        for (int i = 0 ; i != worldsInvs.size() ; i++) {
-            if (worldsInvs.get(i).contains(event.getInventory())) {
-                if (event.getSlot() > 44) {
-                    event.setCancelled(true);
-                    Player player = (Player) event.getWhoClicked();
-                    if (event.getSlot() == 45 && invnumber.get(player) - 1 != -1) {
-                        invnumber.put(player, invnumber.get(player) - 1);
-                        event.getWhoClicked().closeInventory();
-                        event.getWhoClicked().openInventory(worldsInvs.get(i).get(invnumber.get(player)));
-
-                    } else if (event.getSlot() == 53 && invnumber.get(player) + 1 <= invs.size() - 1) {
-                        invnumber.put(player, invnumber.get(player) + 1);
-                        event.getWhoClicked().closeInventory();
-                        event.getWhoClicked().openInventory(worldsInvs.get(i).get(invnumber.get(player)));
-                    }
-                }
-            }
-        }
     }
 
 
