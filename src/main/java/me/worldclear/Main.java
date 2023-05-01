@@ -45,6 +45,11 @@ public final class Main extends JavaPlugin implements Listener {
         // Plugin startup logic
         plugin = this;
         saveDefaultConfig();
+
+
+        reload_config();
+
+
         if (voidFall)
             this.getServer().getPluginManager().registerEvents(new ItemFallsToVoid(this), this);
         if (putIn)
@@ -61,7 +66,7 @@ public final class Main extends JavaPlugin implements Listener {
     }
 
 
-    public void reloadConfig() {
+    public void reload_config() {
         List<Integer> numss = plugin.getConfig().getIntegerList("voidinv.combine");
         name = ChatColor.translateAlternateColorCodes('&',
                 getConfig().getString("texts.name"));
