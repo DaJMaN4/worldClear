@@ -25,7 +25,7 @@ public class ItemFallsToVoid implements Listener {
     @EventHandler
     public void fall(EntityDeathEvent event) {
         if (event.getEntityType() == EntityType.DROPPED_ITEM) {
-            if (event.getEntity().getLocation().getY() < -128) {
+            if (event.getEntity().getLocation().getY() < -127) {
                 if (main.oneInv) {
                     main.addItem(event.getEntity(), main.invs);
                     return;
