@@ -13,7 +13,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ItemDespawnEvent;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -39,6 +38,7 @@ public final class Main extends JavaPlugin implements Listener {
     public String name;
     public String previous;
     public String next;
+    public Inventory inv;
     private static Main plugin;
 
     @Override
@@ -46,20 +46,14 @@ public final class Main extends JavaPlugin implements Listener {
         // Plugin startup logic
         plugin = this;
         saveDefaultConfig();
-
-
         reload_config();
-
-
         if (voidFall)
             this.getServer().getPluginManager().registerEvents(new ItemFallsToVoid(this), this);
         if (putIn)
             this.getServer().getPluginManager().registerEvents(new MoveToInv(this), this);
 
         getServer().getPluginManager().registerEvents(this, this);
-
         getServer().getPluginManager().registerEvents(new InventoryClick(this), this);
-
 
         getCommand("void").setExecutor(new VoidCommand(this));
         getCommand("disablevoid").setExecutor(new VoidCommand(this));
@@ -84,9 +78,9 @@ public final class Main extends JavaPlugin implements Listener {
         oneInv = getConfig().getBoolean("voidinv.oneInv");
         voidFall = getConfig().getBoolean("voidinv.voidfall");
         putIn = getConfig().getBoolean("voidinv.putIn");
-        disableDisappearing = getConfig().getBoolean("disableitemdisappearing");
+        disableDisappearing = getConfig().getBoolean("disableDisappearing");
         if (oneInv) {
-            invs.add(createInv(invs));
+            invs = createInv(invs);
             return;
         }
         worlds = worldsConf();
@@ -129,8 +123,7 @@ public final class Main extends JavaPlugin implements Listener {
 
     public void invlist() {
         for (int i = 0 ; i != worlds.size() ; i++) {
-            worldsInvs.put(i, new ArrayList<Inventory>());
-            worldsInvs.get(i).add(createInv(worldsInvs.get(i)));
+            worldsInvs.put(i, createInv(invs));
         }
     }
 
@@ -144,7 +137,7 @@ public final class Main extends JavaPlugin implements Listener {
             }
         }
         if (inven.isEmpty() || isfull(inven.get(inven.size() - 1))) {
-            inven.add(createInv(inven));
+            inven = createInv(inven);
         }
         inven.get(inven.size() - 1).addItem(it.getItemStack());
     }
@@ -159,10 +152,7 @@ public final class Main extends JavaPlugin implements Listener {
     }
 
 
-    public Inventory createInv(List<Inventory> invent) {
-        Inventory inv = Bukkit.createInventory(null, 54,
-                ChatColor.DARK_PURPLE + name + (invent.size() + 1) + "/" + invent.size() + 1);
-
+    public Inventory makeupinv(Inventory inv) {
         ItemStack item = new ItemStack(Material.PAPER);
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(ChatColor.GOLD + previous);
@@ -184,6 +174,57 @@ public final class Main extends JavaPlugin implements Listener {
         inv.setItem(47, item);
         inv.setItem(46, item);
         return inv;
+    }
+
+
+    public List<Inventory> createInv(List<Inventory> invent) {
+        if (invent.size() != 1) {
+            Inventory inv = Bukkit.createInventory(null, 54,
+                    ChatColor.DARK_PURPLE + name + (invent.size() + 1) + "/" + invent.size());
+            makeupinv(inv);
+        } else {
+            Inventory inv = Bukkit.createInventory(null, 54,
+                    ChatColor.DARK_PURPLE + name + "1/1");
+            inv = makeupinv(inv);
+        }
+
+        ItemStack item = new ItemStack(Material.PAPER);
+        ItemMeta meta = item.getItemMeta();
+        meta.setDisplayName(ChatColor.GOLD + previous);
+        item.setItemMeta(meta);
+        inv.setItem(45, item);
+
+        meta.setDisplayName(ChatColor.GOLD + next);
+        item.setItemMeta(meta);
+        inv.setItem(53, item);
+
+        item = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
+        meta = item.getItemMeta();
+        meta.setDisplayName(" ");
+        inv.setItem(52, item);
+        inv.setItem(51, item);
+        inv.setItem(50, item);
+        inv.setItem(49, item);
+        inv.setItem(48, item);
+        inv.setItem(47, item);
+        inv.setItem(46, item);
+
+        List<Inventory> outputInvs = new ArrayList<Inventory>();
+
+        outputInvs.add(inv);
+
+        if (invent.size() != 1) {
+            int num = 0;
+            for (Inventory i : invent) {
+                num++;
+                Inventory invn = Bukkit.createInventory(null, 54,
+                        ChatColor.DARK_PURPLE + name + (num) + "/" + invent.size());
+                invn.setContents(i.getStorageContents());
+                outputInvs.add(invn);
+            }
+            return outputInvs;
+        }
+        return outputInvs;
     }
 
 
