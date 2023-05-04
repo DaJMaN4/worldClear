@@ -17,6 +17,37 @@ public class VoidCommand implements CommandExecutor{
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (label.equalsIgnoreCase("void")) {
+
+            if (args.length != 0) {
+                if (args[0].equals("clear")) {
+                    if (sender.hasPermission("voidclear.clear")) {
+                        main.clear();
+                        return true;
+                    }
+                }
+                if (args[0].equals("disappearing")) {
+                    if (sender.hasPermission("voidClear.disappearing")) {
+                        main.getConfig().options().copyDefaults();
+                        if (args.length == 1) {
+                            sender.sendMessage("Usage of the command: /void disappearing enable or disable");
+                            return true;
+                        }
+                        if (args[1].equals("disable")) {
+                            main.getConfig().set("disableDisappearing", false);
+                            main.saveDefaultConfig();
+                            main.disableDisappearing = true;
+                            return true;
+                        }
+                        if (args[1].equals("enable")) {
+                            main.getConfig().set("disableDisappearing", true);
+                            main.saveDefaultConfig();
+                            main.disableDisappearing = true;
+                        }
+                    } else {
+                        sender.sendMessage("You don't have permission to use this command");
+                    }
+                }
+            }
             if (!(sender instanceof Player)) {
                 System.out.println("Command not compatible with the console");
                 return true;
@@ -36,14 +67,6 @@ public class VoidCommand implements CommandExecutor{
                         player.openInventory(main.worldsInvs.get(i).get(0));
                         main.invnumber.put(player, 0);
                     }
-                }
-            }
-
-
-            if (args.length != 0) {
-                if (player.isOp()) {
-                    if (args[0].equals("clear"))
-                        main.clear();
                 }
             }
         }
