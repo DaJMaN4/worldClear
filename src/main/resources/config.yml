@@ -1,9 +1,8 @@
-command name: void
-permission: tralalal
-disableitemdisappearing: false
+permission: tralalal # permission to open gui if there is only one
+disableDisappearing: false # Disable auto disappearing of all items in the game
 
 texts:
-  name: "Void                side " # name of the GUIs
+  name: "Void                   side " # name of the GUIs
   previous: "previous side" # name of the item that moves player to previous side
   next: "next side" # name of the item that moves player to next side
 
