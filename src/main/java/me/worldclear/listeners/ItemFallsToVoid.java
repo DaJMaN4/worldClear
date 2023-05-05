@@ -17,23 +17,22 @@ public class ItemFallsToVoid implements Listener {
 
     public ItemFallsToVoid(Main main) {
         this.main = main;
-        oneInv = main.oneInv;
-        worlds = main.worlds;
-
     }
 
     @EventHandler
     public void fall(EntityDeathEvent event) {
         if (event.getEntityType() == EntityType.DROPPED_ITEM) {
             if (event.getEntity().getLocation().getY() < -127) {
+                oneInv = main.oneInv;
                 if (main.oneInv) {
                     main.addItem(event.getEntity(), main.invs);
                     return;
                 }
+                worlds = main.worlds;
                 for (List<String> x : worlds) {
                     for (String y : x) {
                         if (event.getEntity().getWorld().getName().equals(y)) {
-                            main.addItem(event.getEntity(), main.worldsInvs.get(x.indexOf(y)) );
+                            main.addItem(event.getEntity(), main.worldsInvs.get(x.indexOf(y)));
                         }
                     }
                 }
