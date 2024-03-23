@@ -68,7 +68,9 @@ dependencies {
 
     // Add your dependencies here
     // Here are some opinionated dependencies that might help you with your plugin development:
+    implementation 'com.github.stefvanschie.inventoryframework:IF:0.10.13'
 
+    implementation 'com.github.simplix-softworks:simplixstorage:3.2.7'/* Replace me with the current version */
     // Annotation Command Framework: https://github.com/aikar/commands
     // Use shadow to shade the library into your plugin
     shadow "co.aikar:acf-paper:0.5.1-SNAPSHOT"

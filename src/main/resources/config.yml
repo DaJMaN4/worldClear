@@ -1,1 +1,162 @@
-# add your configuration properties here
+version: booo
+texts:
+  # name of the item that moves player to previous page
+  # leave blank to disable
+  doNotHavePermissionMessage: "&c You don't have permission to use this command"
+  # Text that will be displayed when player comes to the last page
+  previousPage: "previous page"
+
+voidInv:
+  # if players can move items inside the GUIs
+  playersCanPutItemsInsideInventories: true
+  # How long will it take to move item to voidInventory
+  timeAlive: 300
+  # If permission is required to open inventories worldclear.openinventories
+  permission: false
+  # if an item that falls to void is moved to gui
+  voidFall: true
+  # list of items that will never be taken by voidInventory
+  prohibitedItems:
+    - BEACON
+    - NETHER_STAR
+  # list of items that will not disappear nor will be taken by voidInventory
+  disableDisappearingItems:
+    - NETHERITE_HOE
+  # Disable auto disappearing of all items in the game
+  # When this is true then no item will disappear nor be taken by voidInventory
+  disableDisappearing: false
+  # If disableVoidInventory is true then no item will be taken by voidInventory but they will disappear
+  disableVoidInventory: false
+  # If every world should have separate voidInventory
+  # Note that this function doesn't allow customization of each world, if you want
+  # To do so, then you need to use the combine functionality and add only one world to the lists
+  worldsSeparateInventories: false
+
+  # The Configuration here overwrites the data above for every world that is specified
+  combine:
+    # this overwrites worldsSeparateInventories
+    enable: false
+    # By default, plugin will open voidInventory of world group the player is currently in
+    # If argument is specified, and it is the commandArgument and the player has permission to do so then
+
+    # If player can open just inventory of the world he currently is in.
+    # If false player can use arguments and then commandArguments to open Inventories of
+    # worlds he currently isn't inside.
+    openLocalGroup: true
+    # Count groups of worlds from 1
+    groups:
+      1:
+        # command to open the GUI
+        commandArgument: spawn
+        # false means disabled, everyone can execute it otherwise permissions will be granted using this form
+        # worldclear.allowopen.1 for first and then worldclear.allowopen.2 and so on.
+        permission: false
+        # if the command works in every world
+        openJustLocalInventories: false
+        # if players can move items inside the GUIs
+        putIn: true
+        # if item that falls to void will be moved to gui
+        voidfall: true
+        # How long will it take to move item to voidInventory in seconds. 300 is 5 minutes, minecrafts default value
+        timeAlive: 300
+        # If disableDisappearing is true then no item will disappear nor be taken by voidInventory
+        disableDisappearing: false
+        # If disableVoidInventory is true then no item will be taken by voidInventory but they will disappear
+        disableVoidInventory: false
+        # list of worlds with the same GUI
+        worlds:
+          - spawnworld1
+          - spawnworld2
+        # Items that only this world will not take inside the GUI. Leave blank to disable
+        # Or doesn't add this section at all to use default items specified below.
+        prohibitedItems:
+          - BEACON
+          - NETHER_STAR
+
+        antydespawnItems:
+          - NETHERITE_HOE
+
+
+      2:
+        commandArgument: dreamworlds
+        permission: true
+        openJustLocalInventories: false
+        putIn: true
+        voidfall: true
+        timeAlive: 300
+        disableDisappearing: false
+        disableVoidInventory: false
+        worlds:
+          - eventmap1
+          - eventmap2
+        prohibitedItems:
+          - BEACON
+          - NETHER_STAR
+        antydespawnItems:
+          - NETHERITE_HOE
+
+gui:
+  # name of the GUIs
+  name: "Void"
+
+  1:
+    # material of the item
+    material: ARROW
+    # name of the item
+    name: "previous side"
+    # lore of the item
+    lore:
+      - "previous side"
+      - "Pad"
+    action: previousPage
+  2:
+    material: BLACK_STAINED_GLASS_PANE
+    name: " "
+    lore:
+      - "next side"
+      - "Work"
+  3:
+    material: BLACK_STAINED_GLASS_PANE
+    name: " "
+    lore:
+      - "next side"
+      - "Work"
+  4:
+    material: BLACK_STAINED_GLASS_PANE
+    name: " "
+    lore:
+      - "next side"
+      - "Work"
+  5:
+    material: BARRIER
+    name: "close"
+    lore:
+      - "next side"
+      - "Work"
+    action: exit
+  6:
+    material: BLACK_STAINED_GLASS_PANE
+    name: " "
+    lore:
+      - "next side"
+      - "Work"
+  7:
+    material: BLACK_STAINED_GLASS_PANE
+    name: " "
+    lore:
+      - "next side"
+      - "Work"
+  8:
+    material: BLACK_STAINED_GLASS_PANE
+    name: " "
+    lore:
+      - "next side"
+      - "Work"
+  9:
+    material: ARROW
+    name: "next side"
+    lore:
+      - "next side"
+      - "Work"
+    action: nextPage
+

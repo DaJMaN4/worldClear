@@ -1,4 +1,4 @@
-package net.silthus.template;
+package me.dajman4.worldclear;
 
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.junit.jupiter.api.Test;

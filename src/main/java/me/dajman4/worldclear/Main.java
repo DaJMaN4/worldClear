@@ -1,59 +1,71 @@
-package net.silthus.template;
+package me.dajman4.worldclear;
 
 import co.aikar.commands.PaperCommandManager;
-import kr.entree.spigradle.annotations.PluginMain;
+import de.leonhard.storage.Config;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import net.milkbowl.vault.chat.Chat;
+import me.dajman4.worldclear.commands.VoidAdminCommand;
+import me.dajman4.worldclear.commands.VoidCommand;
+import me.dajman4.worldclear.inventory.Inventories;
+import me.dajman4.worldclear.inventory.InventoryManager;
+import me.dajman4.worldclear.listeners.OnEntityDeathEvent;
+import me.dajman4.worldclear.listeners.OnInventoryClickEvent;
+import me.dajman4.worldclear.listeners.OnItemDespawnEvent;
+import me.dajman4.worldclear.utils.ConfigFile;
 import net.milkbowl.vault.economy.Economy;
-import net.silthus.template.commands.TemplateCommands;
-import net.silthus.template.integrations.vault.VaultProvider;
+import me.dajman4.worldclear.commands.TemplateCommands;
+import me.dajman4.worldclear.integrations.vault.VaultProvider;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.server.ServiceRegisterEvent;
-import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.plugin.java.JavaPluginLoader;
 
-import java.io.File;
+
 import java.io.IOException;
 import java.util.Locale;
 import java.util.Objects;
 
-public class TemplatePlugin extends JavaPlugin implements Listener {
+public class Main extends JavaPlugin implements Listener {
 
     @Getter
     @Accessors(fluent = true)
-    private static TemplatePlugin instance;
+    private static Main instance;
     @Getter
     @Setter(AccessLevel.PACKAGE)
     private VaultProvider vault;
     private PaperCommandManager commandManager;
+    @Getter InventoryManager inventoryManager;
 
-    public TemplatePlugin() {
+
+    public Main() {
         instance = this;
     }
 
-    public TemplatePlugin(
-            JavaPluginLoader loader, PluginDescriptionFile description, File dataFolder, File file) {
-        super(loader, description, dataFolder, file);
-        instance = this;
-    }
 
     @Override
     public void onEnable() {
         saveDefaultConfig();
+        ConfigFile configFile = new ConfigFile();
+        configFile.load();
 
         setupVaultIntegration();
         setupCommands();
 
         getServer().getPluginManager().registerEvents(this, this);
+        getServer().getPluginManager().registerEvents(new OnInventoryClickEvent(), this);
+        getServer().getPluginManager().registerEvents(new OnEntityDeathEvent(), this);
+        getServer().getPluginManager().registerEvents(new OnItemDespawnEvent(), this);
+
+        Inventories inventories = new Inventories();
+        inventories.init();
+
+        inventoryManager = new InventoryManager();
     }
 
     @EventHandler
@@ -91,6 +103,8 @@ public class TemplatePlugin extends JavaPlugin implements Listener {
         loadCommandLocales(commandManager);
 
         commandManager.registerCommand(new TemplateCommands());
+        commandManager.registerCommand(new VoidCommand());
+        commandManager.registerCommand(new VoidAdminCommand());
     }
 
     // see https://github.com/aikar/commands/wiki/Locales

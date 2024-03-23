@@ -1,8 +1,8 @@
-package net.silthus.template.commands;
+package me.dajman4.worldclear.commands;
 
 import be.seeseemelk.mockbukkit.entity.PlayerMock;
-import net.silthus.template.Constants;
-import net.silthus.template.TestBase;
+import me.dajman4.worldclear.utils.Constants;
+import me.dajman4.worldclear.TestBase;
 import org.bukkit.Statistic;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

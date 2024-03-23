@@ -1,7 +1,7 @@
-package net.silthus.template.integrations.vault;
+package me.dajman4.worldclear.integrations.vault;
 
 import be.seeseemelk.mockbukkit.entity.PlayerMock;
-import net.silthus.template.TestBase;
+import me.dajman4.worldclear.TestBase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
